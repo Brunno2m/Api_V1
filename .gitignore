@@ -1,0 +1,14 @@
+# Arquivos e pastas do Python
+__pycache__/
+*.pyc
+
+# Ambiente virtual
+venv/
+env/
+
+# Arquivos de dados e logs (evita expor informações sensíveis)
+*.log
+.DS_Store
+
+# Arquivos de credenciais ou configuração
+*.env
