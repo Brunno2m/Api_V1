@@ -68,44 +68,45 @@ No terminal, execute o comando para iniciar o servidor Flask:
 ```bash
 py api.py
 ```
-A API estará rodando em `http://127.0.0.1:5000/movimentacoes`.
+A API estará rodando em `http://127.0.0.1:5000`.
 
 ---
 
 🖥️ Endpoints da API
-Atualmente, a API possui apenas um endpoint para consulta de dados.
+A API foi expandida para incluir endpoints de leitura e de operações bancárias.
 
-`GET /movimentacoes`
-Retorna uma lista completa de todas as movimentações financeiras cadastradas no banco de dados, incluindo informações do correntista e, se aplicável, do beneficiário.
+1. Endpoints de Leitura (`GET`)
 
-Exemplo de Resposta (JSON):
+```Markdown
 
-```JSON
-[
-  {
-    "CorrentistaID": 1,
-    "NomeCorrentista": "João Silva",
-    "TipoOperacao": "Débito",
-    "MovimentacaoID": 1,
-    "Descricao": "Saque",
-    "DataOperacao": "2025-09-26 19:30:00",
-    "ValorOperacao": 200.00,
-    "BeneficiarioID": null,
-    "NomeBeneficiario": null
-  },
-  {
-    "CorrentistaID": 1,
-    "NomeCorrentista": "João Silva",
-    "TipoOperacao": "Débito",
-    "MovimentacaoID": 3,
-    "Descricao": "Transferência",
-    "DataOperacao": "2025-09-26 19:35:00",
-    "ValorOperacao": 50.00,
-    "BeneficiarioID": 2,
-    "NomeBeneficiario": "Maria Souza"
-  }
-]
+| Endpoint | Descrição |
+| :--- | :--- |
+| `/movimentacoes` | Retorna uma lista completa de todas as movimentações financeiras cadastradas. |
+| `/extrato/<correntista_id>` | Exibe o extrato de um correntista específico, filtrando por ID. |
 ```
+2. Endpoints de Operação (`POST`)
+
+Estes endpoints permitem realizar operações bancárias. Eles esperam um corpo de requisição no formato JSON.
+
+`/deposito`
+* Descrição: Realiza um depósito na conta de um correntista.
+
+* Corpo da Requisição: `{"correntista_id": 1, "valor": 100.00}`
+
+`/saque`
+* Descrição: Realiza um saque da conta de um correntista.
+
+* Corpo da Requisição: `{"correntista_id": 1, "valor": 50.00}`
+
+`/pagamento`
+* Descrição: Realiza um pagamento a partir da conta de um correntista.
+
+* Corpo da Requisição: `{"correntista_id": 1, "valor": 25.00, "descricao": "Conta de luz"}`
+
+`/transferencia`
+* Descrição: Realiza uma transferência entre contas de correntistas.
+
+* Corpo da Requisição: `{"correntista_id_origem": 1, "correntista_id_destino": 2, "valor": 15.00}`
 
 ---
 

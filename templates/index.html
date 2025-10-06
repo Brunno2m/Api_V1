@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testador da API de Movimentações</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        .container { max-width: 800px; margin: auto; }
+        .section { margin-bottom: 2rem; border: 1px solid #ccc; padding: 1rem; border-radius: 8px; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 0.5rem; }
+        button { padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; border: none; border-radius: 4px; color: white; background-color: #007bff; margin-right: 0.5rem; }
+        .method-get { background-color: #28a745; }
+        .method-post { background-color: #dc3545; }
+        pre { background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Testador da API de Movimentações Financeiras</h1>
+        <p>Clique nos botões abaixo para testar os endpoints da API.</p>
+
+        <div class="section">
+            <h2>Endpoints de Consulta</h2>
+            <p>Retornam dados do banco de dados.</p>
+            <button class="method-get" onclick="fetchData('/movimentacoes')">GET /movimentacoes</button>
+            <button class="method-get" onclick="fetchData('/extrato/1')">GET /extrato/1</button>
+        </div>
+
+        <div class="section">
+            <h2>Endpoints de Operação</h2>
+            <p>Enviam dados para o banco de dados via POST.</p>
+            <button class="method-post" onclick="postData('/deposito', {correntista_id: 1, valor: 100})">POST /deposito</button>
+            <button class="method-post" onclick="postData('/saque', {correntista_id: 1, valor: 50})">POST /saque</button>
+            <button class="method-post" onclick="postData('/pagamento', {correntista_id: 1, valor: 25, descricao: 'Aluguel'})">POST /pagamento</button>
+            <button class="method-post" onclick="postData('/transferencia', {correntista_id_origem: 1, correntista_id_destino: 2, valor: 15})">POST /transferencia</button>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">(Os IDs e valores são fixos para demonstração. É necessário ter os correntistas 1 e 2 criados no banco de dados.)</p>
+        </div>
+
+        <div class="section">
+            <h2>Resultado</h2>
+            <pre id="result"></pre>
+        </div>
+    </div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.textContent = 'Erro ao buscar dados da API: ' + error.message;
+            }
+        }
+
+        async function postData(endpoint, body) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.textContent = 'Erro ao enviar dados para a API: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
