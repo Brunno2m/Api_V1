@@ -30,10 +30,9 @@ Siga os passos abaixo para configurar o ambiente e rodar a API.
 ### 1. Clonar o Repositório
 
 ```bash
-git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+git clone [https://github.com/Brunno2m/Api_V1.git](https://github.com/Brunno2m/Api_V1.git)
 cd seu-repositorio
 ````
-
 
 ### 2. Configurar o Banco de Dados
 
