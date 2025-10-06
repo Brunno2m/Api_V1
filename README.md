@@ -77,13 +77,12 @@ A API foi expandida para incluir endpoints de leitura e de operações bancária
 
 1. Endpoints de Leitura (`GET`)
 
-```Markdown
 
-| Endpoint | Descrição |
-| :--- | :--- |
-| `/movimentacoes` | Retorna uma lista completa de todas as movimentações financeiras cadastradas. |
-| `/extrato/<correntista_id>` | Exibe o extrato de um correntista específico, filtrando por ID. |
-```
+| Endpoint | Descrição | Exemplo de Resposta |
+| :--- | :--- | :--- |
+| `/movimentacoes` | Retorna uma lista completa de todas as movimentações financeiras cadastradas. | `[ ... ]` |
+| `/extrato/<correntista_id>` | Exibe o extrato de um correntista específico, filtrando por ID. | `[ ... ]` |
+
 2. Endpoints de Operação (`POST`)
 
 Estes endpoints permitem realizar operações bancárias. Eles esperam um corpo de requisição no formato JSON.
