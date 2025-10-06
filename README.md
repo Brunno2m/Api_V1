@@ -31,7 +31,7 @@ Siga os passos abaixo para configurar o ambiente e rodar a API.
 
 ```bash
 git clone [https://github.com/Brunno2m/Api_V1.git](https://github.com/Brunno2m/Api_V1.git)
-cd seu-repositorio
+cd Api_V1
 ````
 
 ### 2. Configurar o Banco de Dados
