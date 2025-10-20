@@ -3,52 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Testador da API de Movimentações</title>
+    <title>API de Movimentações Financeiras</title>
     <style>
-        body { font-family: sans-serif; margin: 2rem; }
-        .container { max-width: 800px; margin: auto; }
-        .section { margin-bottom: 2rem; border: 1px solid #ccc; padding: 1rem; border-radius: 8px; }
+        body { font-family: sans-serif; margin: 2rem; background-color: #f5f5f5; }
+        .container { max-width: 1000px; margin: auto; }
+        .section { margin-bottom: 2rem; border: 1px solid #ccc; padding: 1rem; border-radius: 8px; background: white; }
+        .auth-section { background: #e8f4f8; border-color: #007bff; }
+        .hidden { display: none; }
+        h1 { text-align: center; color: #333; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 0.5rem; }
-        button { padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; border: none; border-radius: 4px; color: white; background-color: #007bff; margin-right: 0.5rem; }
+        .user-info { background: #d4edda; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+        button { padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; border: none; border-radius: 4px; color: white; background-color: #007bff; margin: 0.25rem; }
         .method-get { background-color: #28a745; }
         .method-post { background-color: #dc3545; }
-        pre { background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow-x: auto; }
+        .logout-btn { background-color: #6c757d; }
+        input { padding: 0.5rem; margin: 0.25rem; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+        .form-group { margin: 1rem 0; }
+        label { display: inline-block; width: 120px; font-weight: bold; }
+        pre { background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .status { margin: 1rem 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Testador da API de Movimentações Financeiras</h1>
-        <p>Clique nos botões abaixo para testar os endpoints da API.</p>
+        <h1>API de Movimentações Financeiras com Autenticação JWT</h1>
 
-        <div class="section">
-            <h2>Endpoints de Consulta</h2>
-            <p>Retornam dados do banco de dados.</p>
-            <button class="method-get" onclick="fetchData('/movimentacoes')">GET /movimentacoes</button>
-            <button class="method-get" onclick="fetchData('/extrato/1')">GET /extrato/1</button>
+        <!-- Seção de Login/Registro -->
+        <div id="auth-section" class="section auth-section">
+            <h2>Autenticação</h2>
+            
+            <div id="login-form">
+                <h3>Login</h3>
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="loginSenha">Senha:</label>
+                    <input type="password" id="loginSenha" placeholder="Sua senha">
+                </div>
+                <button onclick="fazerLogin()">Fazer Login</button>
+                <button onclick="mostrarRegistro()">Registrar-se</button>
+            </div>
+
+            <div id="registro-form" class="hidden">
+                <h3>Registro</h3>
+                <div class="form-group">
+                    <label for="regNome">Nome:</label>
+                    <input type="text" id="regNome" placeholder="Seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email:</label>
+                    <input type="email" id="regEmail" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="regSenha">Senha:</label>
+                    <input type="password" id="regSenha" placeholder="Mínimo 6 caracteres">
+                </div>
+                <button onclick="fazerRegistro()">Registrar</button>
+                <button onclick="mostrarLogin()">Voltar ao Login</button>
+            </div>
+
+            <div class="status" id="auth-status"></div>
         </div>
 
-        <div class="section">
-            <h2>Endpoints de Operação</h2>
-            <p>Enviam dados para o banco de dados via POST.</p>
-            <button class="method-post" onclick="postData('/deposito', {correntista_id: 1, valor: 100})">POST /deposito</button>
-            <button class="method-post" onclick="postData('/saque', {correntista_id: 1, valor: 50})">POST /saque</button>
-            <button class="method-post" onclick="postData('/pagamento', {correntista_id: 1, valor: 25, descricao: 'Aluguel'})">POST /pagamento</button>
-            <button class="method-post" onclick="postData('/transferencia', {correntista_id_origem: 1, correntista_id_destino: 2, valor: 15})">POST /transferencia</button>
-            <p style="margin-top: 1rem; font-size: 0.9rem;">(Os IDs e valores são fixos para demonstração. É necessário ter os correntistas 1 e 2 criados no banco de dados.)</p>
+        <!-- Informações do Usuário (oculto inicialmente) -->
+        <div id="user-section" class="section hidden">
+            <div class="user-info">
+                <strong>Usuário logado:</strong> <span id="user-name"></span> (<span id="user-email"></span>)
+                <button class="logout-btn" onclick="logout()">Sair</button>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>Resultado</h2>
-            <pre id="result"></pre>
+        <!-- Seção Principal da API (oculta inicialmente) -->
+        <div id="api-section" class="hidden">
+            
+            <div class="section">
+                <h2>Gerenciar Correntistas</h2>
+                <p>Visualize seus correntistas cadastrados.</p>
+                <button class="method-get" onclick="fetchData('/correntistas')">GET /correntistas</button>
+                <button class="method-get" onclick="fetchData('/perfil')">GET /perfil</button>
+            </div>
+
+            <div class="section">
+                <h2>Endpoints de Consulta</h2>
+                <p>Retornam dados do banco de dados.</p>
+                <button class="method-get" onclick="fetchData('/movimentacoes')">GET /movimentacoes</button>
+                <button class="method-get" onclick="fetchData('/extrato/1')">GET /extrato/1</button>
+                <button class="method-get" onclick="fetchData('/extrato/2')">GET /extrato/2</button>
+            </div>
+
+            <div class="section">
+                <h2>Endpoints de Operação</h2>
+                <p>Enviam dados para o banco de dados via POST.</p>
+                
+                <div style="margin: 1rem 0;">
+                    <h4>Depósitos e Saques</h4>
+                    <button class="method-post" onclick="postData('/deposito', {correntista_id: 1, valor: 100})">Depósito R$ 100 (Conta 1)</button>
+                    <button class="method-post" onclick="postData('/saque', {correntista_id: 1, valor: 50})">Saque R$ 50 (Conta 1)</button>
+                </div>
+                
+                <div style="margin: 1rem 0;">
+                    <h4>Pagamentos</h4>
+                    <button class="method-post" onclick="postData('/pagamento', {correntista_id: 1, valor: 25, descricao: 'Conta de luz'})">Pagamento R$ 25 (Conta 1)</button>
+                </div>
+                
+                <div style="margin: 1rem 0;">
+                    <h4>Transferências</h4>
+                    <button class="method-post" onclick="postData('/transferencia', {correntista_id_origem: 1, correntista_id_destino: 2, valor: 15})">Transferência R$ 15 (1 → 2)</button>
+                </div>
+                
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    <strong>Nota:</strong> Os valores e IDs são fixos para demonstração. Use as contas 1 e 2 que são criadas automaticamente para o usuário admin.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Resultado</h2>
+                <pre id="result">Faça login e teste os endpoints acima...</pre>
+            </div>
         </div>
     </div>
 
     <script>
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+
+        // Verificar se usuário já está logado
+        if (authToken) {
+            verificarToken();
+        }
+
+        function mostrarLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('registro-form').classList.add('hidden');
+            document.getElementById('auth-status').innerHTML = '';
+        }
+
+        function mostrarRegistro() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('registro-form').classList.remove('hidden');
+            document.getElementById('auth-status').innerHTML = '';
+        }
+
+        async function fazerRegistro() {
+            const nome = document.getElementById('regNome').value;
+            const email = document.getElementById('regEmail').value;
+            const senha = document.getElementById('regSenha').value;
+
+            if (!nome || !email || !senha) {
+                mostrarStatus('Preencha todos os campos', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/registro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.usuario;
+                    localStorage.setItem('authToken', authToken);
+                    mostrarStatus('Registro realizado com sucesso!', 'success');
+                    mostrarAreaLogada();
+                } else {
+                    mostrarStatus(data.erro || 'Erro no registro', 'error');
+                }
+            } catch (error) {
+                mostrarStatus('Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        async function fazerLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+
+            if (!email || !senha) {
+                mostrarStatus('Preencha email e senha', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.usuario;
+                    localStorage.setItem('authToken', authToken);
+                    mostrarStatus('Login realizado com sucesso!', 'success');
+                    mostrarAreaLogada();
+                } else {
+                    mostrarStatus(data.erro || 'Erro no login', 'error');
+                }
+            } catch (error) {
+                mostrarStatus('Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        async function verificarToken() {
+            try {
+                const response = await fetch('/perfil', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.usuario;
+                    mostrarAreaLogada();
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                logout();
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('user-section').classList.add('hidden');
+            document.getElementById('api-section').classList.add('hidden');
+            
+            mostrarLogin();
+            document.getElementById('result').textContent = 'Faça login para usar a API...';
+            mostrarStatus('', '');
+        }
+
+        function mostrarAreaLogada() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('user-section').classList.remove('hidden');
+            document.getElementById('api-section').classList.remove('hidden');
+            
+            document.getElementById('user-name').textContent = currentUser.nome;
+            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('result').textContent = 'Usuário logado! Teste os endpoints acima...';
+        }
+
+        function mostrarStatus(mensagem, tipo) {
+            const statusDiv = document.getElementById('auth-status');
+            statusDiv.textContent = mensagem;
+            statusDiv.className = `status ${tipo}`;
+        }
+
         const resultDiv = document.getElementById('result');
 
         async function fetchData(endpoint) {
+            if (!authToken) {
+                resultDiv.textContent = 'Erro: Você precisa estar logado para acessar este endpoint.';
+                return;
+            }
+
             try {
-                const response = await fetch(endpoint);
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
                 const data = await response.json();
                 resultDiv.textContent = JSON.stringify(data, null, 2);
             } catch (error) {
@@ -57,11 +289,17 @@
         }
 
         async function postData(endpoint, body) {
+            if (!authToken) {
+                resultDiv.textContent = 'Erro: Você precisa estar logado para acessar este endpoint.';
+                return;
+            }
+
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify(body)
                 });

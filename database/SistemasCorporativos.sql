@@ -96,3 +96,27 @@ BEGIN
     VALUES ('D', p_CorrentistaID, p_ValorOperacao, NOW(), 'Transferência', p_CorrentistaBeneficiarioID);
 END$$
 DELIMITER ;
+
+-- Criar a Tabela 'Usuarios' para autenticação
+CREATE TABLE Usuarios (
+    UsuarioID INT AUTO_INCREMENT NOT NULL,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    SenhaHash VARCHAR(255) NOT NULL,
+    Nome VARCHAR(100) NOT NULL,
+    DataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Ativo BOOLEAN DEFAULT TRUE,
+    CONSTRAINT PK_Usuarios PRIMARY KEY (UsuarioID)
+);
+
+-- Inserir usuário padrão para testes (senha: 123456)
+INSERT INTO Usuarios (Email, SenhaHash, Nome) 
+VALUES ('admin@teste.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewfTWBtqZ4H5QHKG', 'Administrador');
+
+-- Adicionar relacionamento entre Correntistas e Usuarios (opcional)
+ALTER TABLE Correntistas ADD COLUMN UsuarioID INT;
+ALTER TABLE Correntistas ADD CONSTRAINT FK_Correntistas_Usuarios FOREIGN KEY (UsuarioID) REFERENCES Usuarios (UsuarioID);
+
+-- Inserir correntistas de exemplo vinculados ao usuário admin
+INSERT INTO Correntistas (NomeCorrentista, Saldo, UsuarioID) VALUES 
+('João Silva', 1000.00, 1),
+('Maria Santos', 1500.00, 1);
