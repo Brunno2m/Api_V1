@@ -1,6 +1,32 @@
 # API de Movimentações Financeiras com Autenticação JWT
 
-Uma API RESTful segura para gerenciar e consultar movimentações financeiras, desenvolvida com **Flask** e **Python**, utilizando **MySQL** como banco de dados e **JWT** para autenticação. Este projeto demonstra a implementação de APIs seguras com controle de acesso baseado em tokens.
+Uma API RESTful segura para gerenciar e consultar movimentações financeiras, desenvolvida com **Flask** e **Python**, utilizando **MySQL** como banco de dados e **JWT** para autenticação. Este projeto demo## 🛡️ Melhorias de Segurança e Interface Implementadas
+
+Esta versão final inclui:
+
+### 🔒 Segurança:
+- ✅ **Autenticação JWT obrigatória** para todos os endpoints
+- ✅ **Controle de acesso por usuário** - isolamento de dados
+- ✅ **Hash seguro de senhas** com bcrypt
+- ✅ **Validação robusta de entrada** em todas as operações
+- ✅ **Configurações via variáveis de ambiente** (.env)
+- ✅ **Verificação de propriedade de recursos**
+- ✅ **Tokens com expiração configurável**
+
+### 🎨 Interface e Experiência:
+- ✅ **Interface web moderna e responsiva**
+- ✅ **Dashboard bancário profissional**
+- ✅ **Sistema de modais para operações**
+- ✅ **Notificações visuais de feedback**
+- ✅ **Testador de API integrado**
+- ✅ **Gerenciamento automático de sessão JWT**
+- ✅ **Design compatível com dispositivos móveis**
+
+### 🚀 Funcionalidades Avançadas:
+- ✅ **Scripts de debug e correção automática**
+- ✅ **Documentação completa com troubleshooting**
+- ✅ **Ambiente de desenvolvimento configurado**
+- ✅ **Pronto para produção com melhorias de segurança**lementação de APIs seguras com controle de acesso baseado em tokens.
 
 ---
 
@@ -14,6 +40,8 @@ Uma API RESTful segura para gerenciar e consultar movimentações financeiras, d
 * **python-dotenv:** Gerenciamento de variáveis de ambiente.
 * **XAMPP:** Ambiente de desenvolvimento para o servidor web e o banco de dados.
 * **`mysql-connector-python`:** Driver para conectar o Python ao MySQL.
+* **HTML5/CSS3/JavaScript:** Interface web moderna e responsiva.
+* **Font Awesome:** Ícones profissionais para a interface.
 
 ---
 
@@ -134,14 +162,26 @@ A API estará rodando em `http://127.0.0.1:5000`.
 
 ---
 
-## 📱 Interface Web
+## 📱 Interface Web Moderna
 
-A aplicação inclui uma interface web completa com:
+A aplicação inclui uma interface web profissional e responsiva com:
 
-* **Sistema de login/registro**
-* **Dashboard do usuário logado**
-* **Testador de endpoints integrado**
-* **Gerenciamento de sessão automático**
+* **Sistema de autenticação completo** (login/registro)
+* **Dashboard interativo** com informações do usuário
+* **Testador de endpoints integrado** com interface intuitiva
+* **Modais modernos** para operações financeiras
+* **Design responsivo** que funciona em desktop e mobile
+* **Notificações visuais** para feedback das operações
+* **Gerenciamento automático de sessão JWT**
+* **Tema moderno** com CSS variables e gradientes
+
+### Recursos da Interface:
+- 🏦 **Dashboard Bancário** com cards informativos
+- 💰 **Operações Financeiras** via modais interativos
+- 📊 **Visualização de Extratos** em tempo real
+- 🔄 **Testador de API** para desenvolvedores
+- 📱 **Design Responsivo** para todos os dispositivos
+- 🎨 **Interface Moderna** com Font Awesome icons
 
 Acesse `http://127.0.0.1:5000` após iniciar o servidor.
 
@@ -160,12 +200,19 @@ Acesse `http://127.0.0.1:5000` após iniciar o servidor.
 
 ## 🧪 Como Testar
 
-### 1. Via Interface Web
+### 1. Via Interface Web (Método Recomendado)
 1. Acesse `http://127.0.0.1:5000`
 2. Faça login com `admin@teste.com` / `123456`
-3. Teste todos os endpoints através da interface
+3. **Dashboard:** Visualize informações e realize operações bancárias
+4. **Testador de API:** Teste todos os endpoints de forma interativa
 
-### 2. Via cURL/Postman
+### 2. Via Interface Web (Recomendado)
+1. Acesse `http://127.0.0.1:5000`
+2. Faça login com `admin@teste.com` / `123456`
+3. Use o **Dashboard** para operações bancárias
+4. Use o **Testador de API** para testar todos os endpoints
+
+### 3. Via cURL/Postman
 
 **Login:**
 ```bash
@@ -198,15 +245,37 @@ curl -X GET http://127.0.0.1:5000/correntistas \
 **Solução:**
 Execute o script de correção:
 ```bash
-python update_password.py
+py update_password.py
 ```
 Este script atualiza o hash da senha do usuário admin para funcionar corretamente.
 
 **Script de debug completo disponível:**
 ```bash
-python debug_login.py
+py debug_login.py
 ```
 Este script verifica a conexão com o banco, usuário existente e oferece opção de recriar o hash da senha.
+
+### **Problema: "PROCEDURE sistemascorporativos.spDepositar does not exist"**
+**Causa:** As stored procedures não foram criadas no banco de dados.
+
+**Solução:**
+Execute o script verificador de procedures:
+```bash
+py check_procedures.py
+```
+Este script verifica quais procedures existem e oferece a opção de criar as que estão faltando automaticamente.
+
+**Procedures necessárias:**
+- `spDepositar` - Para operações de depósito
+- `spSacar` - Para operações de saque
+- `spPagar` - Para operações de pagamento
+- `spTransferir` - Para operações de transferência
+
+Todas as procedures incluem:
+- ✅ **Validação de saldo** antes de débitos
+- ✅ **Atualização automática de saldos**
+- ✅ **Tratamento de erros** com mensagens claras
+- ✅ **Verificação de existência** de beneficiários (transferências)
 
 ### **Problema: Erro de conexão com MySQL**
 **Possíveis causas e soluções:**

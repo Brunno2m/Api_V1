@@ -3,194 +3,941 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API de Movimentações Financeiras</title>
+    <title>FinanceApp - Sistema Bancário Digital</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; margin: 2rem; background-color: #f5f5f5; }
-        .container { max-width: 1000px; margin: auto; }
-        .section { margin-bottom: 2rem; border: 1px solid #ccc; padding: 1rem; border-radius: 8px; background: white; }
-        .auth-section { background: #e8f4f8; border-color: #007bff; }
-        .hidden { display: none; }
-        h1 { text-align: center; color: #333; }
-        h2 { border-bottom: 2px solid #333; padding-bottom: 0.5rem; }
-        .user-info { background: #d4edda; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
-        button { padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; border: none; border-radius: 4px; color: white; background-color: #007bff; margin: 0.25rem; }
-        .method-get { background-color: #28a745; }
-        .method-post { background-color: #dc3545; }
-        .logout-btn { background-color: #6c757d; }
-        input { padding: 0.5rem; margin: 0.25rem; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
-        .form-group { margin: 1rem 0; }
-        label { display: inline-block; width: 120px; font-weight: bold; }
-        pre { background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
-        .error { color: #dc3545; }
-        .success { color: #28a745; }
-        .status { margin: 1rem 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --background-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* Login Section */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: var(--surface-color);
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: var(--surface-color);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--danger-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            min-height: 44px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface-color);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background: var(--background-color);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table tr:hover {
+            background: var(--background-color);
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success-color);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+
+        .notification.warning {
+            background: var(--warning-color);
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-success {
+            color: var(--success-color);
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        .text-warning {
+            color: var(--warning-color);
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .auth-card {
+                padding: 2rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal-content {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .notification {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+                transform: translateY(-100px);
+            }
+
+            .notification.show {
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>API de Movimentações Financeiras com Autenticação JWT</h1>
-
-        <!-- Seção de Login/Registro -->
-        <div id="auth-section" class="section auth-section">
-            <h2>Autenticação</h2>
-            
-            <div id="login-form">
-                <h3>Login</h3>
-                <div class="form-group">
-                    <label for="loginEmail">Email:</label>
-                    <input type="email" id="loginEmail" placeholder="seu@email.com">
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header hidden" id="main-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-university"></i>
+                    FinanceApp
                 </div>
-                <div class="form-group">
-                    <label for="loginSenha">Senha:</label>
-                    <input type="password" id="loginSenha" placeholder="Sua senha">
+                <div class="user-menu">
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="header-user-name">Usuário</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sair
+                    </button>
                 </div>
-                <button onclick="fazerLogin()">Fazer Login</button>
-                <button onclick="mostrarRegistro()">Registrar-se</button>
             </div>
+        </header>
 
-            <div id="registro-form" class="hidden">
-                <h3>Registro</h3>
-                <div class="form-group">
-                    <label for="regNome">Nome:</label>
-                    <input type="text" id="regNome" placeholder="Seu nome completo">
+        <!-- Login/Register Section -->
+        <div id="auth-container" class="auth-container">
+            <div class="auth-card">
+                <!-- Login Form -->
+                <div id="login-form">
+                    <div class="auth-header">
+                        <i class="fas fa-university" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                        <h2>FinanceApp</h2>
+                        <p>Entre em sua conta para acessar seus serviços bancários</p>
+                    </div>
+                    
+                    <form id="loginFormElement" onsubmit="fazerLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" class="form-input" placeholder="seu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="loginSenha">Senha</label>
+                            <input type="password" id="loginSenha" class="form-input" placeholder="Sua senha" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Entrar
+                        </button>
+                    </form>
+                    
+                    <p class="text-center" style="margin-top: 1.5rem; color: var(--text-secondary);">
+                        Não tem uma conta? 
+                        <a href="#" onclick="mostrarRegistro()" style="color: var(--primary-color); text-decoration: none;">Registre-se</a>
+                    </p>
                 </div>
-                <div class="form-group">
-                    <label for="regEmail">Email:</label>
-                    <input type="email" id="regEmail" placeholder="seu@email.com">
+
+                <!-- Register Form -->
+                <div id="registro-form" class="hidden">
+                    <div class="auth-header">
+                        <i class="fas fa-user-plus" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                        <h2>Criar Conta</h2>
+                        <p>Registre-se para acessar nossos serviços bancários</p>
+                    </div>
+                    
+                    <form id="registerFormElement" onsubmit="fazerRegistro(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="regNome">Nome completo</label>
+                            <input type="text" id="regNome" class="form-input" placeholder="Seu nome completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="regEmail">Email</label>
+                            <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="regSenha">Senha</label>
+                            <input type="password" id="regSenha" class="form-input" placeholder="Mínimo 6 caracteres" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="registerBtn">
+                            <i class="fas fa-user-plus"></i>
+                            Registrar
+                        </button>
+                    </form>
+                    
+                    <p class="text-center" style="margin-top: 1.5rem; color: var(--text-secondary);">
+                        Já tem uma conta? 
+                        <a href="#" onclick="mostrarLogin()" style="color: var(--primary-color); text-decoration: none;">Faça login</a>
+                    </p>
                 </div>
-                <div class="form-group">
-                    <label for="regSenha">Senha:</label>
-                    <input type="password" id="regSenha" placeholder="Mínimo 6 caracteres">
-                </div>
-                <button onclick="fazerRegistro()">Registrar</button>
-                <button onclick="mostrarLogin()">Voltar ao Login</button>
-            </div>
-
-            <div class="status" id="auth-status"></div>
-        </div>
-
-        <!-- Informações do Usuário (oculto inicialmente) -->
-        <div id="user-section" class="section hidden">
-            <div class="user-info">
-                <strong>Usuário logado:</strong> <span id="user-name"></span> (<span id="user-email"></span>)
-                <button class="logout-btn" onclick="logout()">Sair</button>
-            </div>
-        </div>
-
-        <!-- Seção Principal da API (oculta inicialmente) -->
-        <div id="api-section" class="hidden">
-            
-            <div class="section">
-                <h2>Gerenciar Correntistas</h2>
-                <p>Visualize seus correntistas cadastrados.</p>
-                <button class="method-get" onclick="fetchData('/correntistas')">GET /correntistas</button>
-                <button class="method-get" onclick="fetchData('/perfil')">GET /perfil</button>
-            </div>
-
-            <div class="section">
-                <h2>Endpoints de Consulta</h2>
-                <p>Retornam dados do banco de dados.</p>
-                <button class="method-get" onclick="fetchData('/movimentacoes')">GET /movimentacoes</button>
-                <button class="method-get" onclick="fetchData('/extrato/1')">GET /extrato/1</button>
-                <button class="method-get" onclick="fetchData('/extrato/2')">GET /extrato/2</button>
-            </div>
-
-            <div class="section">
-                <h2>Endpoints de Operação</h2>
-                <p>Enviam dados para o banco de dados via POST.</p>
-                
-                <div style="margin: 1rem 0;">
-                    <h4>Depósitos e Saques</h4>
-                    <button class="method-post" onclick="postData('/deposito', {correntista_id: 1, valor: 100})">Depósito R$ 100 (Conta 1)</button>
-                    <button class="method-post" onclick="postData('/saque', {correntista_id: 1, valor: 50})">Saque R$ 50 (Conta 1)</button>
-                </div>
-                
-                <div style="margin: 1rem 0;">
-                    <h4>Pagamentos</h4>
-                    <button class="method-post" onclick="postData('/pagamento', {correntista_id: 1, valor: 25, descricao: 'Conta de luz'})">Pagamento R$ 25 (Conta 1)</button>
-                </div>
-                
-                <div style="margin: 1rem 0;">
-                    <h4>Transferências</h4>
-                    <button class="method-post" onclick="postData('/transferencia', {correntista_id_origem: 1, correntista_id_destino: 2, valor: 15})">Transferência R$ 15 (1 → 2)</button>
-                </div>
-                
-                <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                    <strong>Nota:</strong> Os valores e IDs são fixos para demonstração. Use as contas 1 e 2 que são criadas automaticamente para o usuário admin.
-                </p>
-            </div>
-
-            <div class="section">
-                <h2>Resultado</h2>
-                <pre id="result">Faça login e teste os endpoints acima...</pre>
             </div>
         </div>
+
+        <!-- Main Application -->
+        <div id="main-app" class="main-container hidden">
+            <!-- Dashboard Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-value" id="saldo-total">R$ 0,00</div>
+                    <div class="stat-label">Saldo Total</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-value" id="total-receitas">R$ 0,00</div>
+                    <div class="stat-label">Receitas</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-value" id="total-despesas">R$ 0,00</div>
+                    <div class="stat-label">Despesas</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-value" id="total-movimentacoes">0</div>
+                    <div class="stat-label">Movimentações</div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="dashboard-grid">
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-bolt"></i>
+                            Ações Rápidas
+                        </h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                        <button class="btn btn-success" onclick="abrirModal('deposito')">
+                            <i class="fas fa-plus"></i>
+                            Depósito
+                        </button>
+                        <button class="btn btn-danger" onclick="abrirModal('saque')">
+                            <i class="fas fa-minus"></i>
+                            Saque
+                        </button>
+                        <button class="btn btn-primary" onclick="abrirModal('transferencia')">
+                            <i class="fas fa-exchange-alt"></i>
+                            Transferir
+                        </button>
+                        <button class="btn btn-warning" onclick="abrirModal('pagamento')">
+                            <i class="fas fa-credit-card"></i>
+                            Pagar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Account Summary -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user"></i>
+                            Minhas Contas
+                        </h3>
+                        <button class="btn btn-outline" onclick="carregarCorrentistas()">
+                            <i class="fas fa-sync"></i>
+                            Atualizar
+                        </button>
+                    </div>
+                    <div id="contas-lista">
+                        <p class="text-center" style="color: var(--text-secondary); padding: 2rem;">
+                            Carregando contas...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i>
+                        Movimentações Recentes
+                    </h3>
+                    <button class="btn btn-outline" onclick="carregarMovimentacoes()">
+                        <i class="fas fa-sync"></i>
+                        Atualizar
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="movimentacoes-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Conta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movimentacoes-tbody">
+                            <tr>
+                                <td colspan="5" class="text-center" style="padding: 2rem; color: var(--text-secondary);">
+                                    Carregando movimentações...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <!-- Depósito Modal -->
+        <div id="depositoModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-plus"></i> Realizar Depósito</h3>
+                    <button class="modal-close" onclick="fecharModal('depositoModal')">&times;</button>
+                </div>
+                <form id="depositoForm" onsubmit="realizarDeposito(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="depositoConta">Conta</label>
+                        <select id="depositoConta" class="form-input" required>
+                            <option value="">Selecione uma conta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="depositoValor">Valor (R$)</label>
+                        <input type="number" id="depositoValor" class="form-input" placeholder="0,00" step="0.01" min="0.01" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="fecharModal('depositoModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i>
+                            Depositar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Saque Modal -->
+        <div id="saqueModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-minus"></i> Realizar Saque</h3>
+                    <button class="modal-close" onclick="fecharModal('saqueModal')">&times;</button>
+                </div>
+                <form id="saqueForm" onsubmit="realizarSaque(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="saqueConta">Conta</label>
+                        <select id="saqueConta" class="form-input" required>
+                            <option value="">Selecione uma conta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="saqueValor">Valor (R$)</label>
+                        <input type="number" id="saqueValor" class="form-input" placeholder="0,00" step="0.01" min="0.01" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="fecharModal('saqueModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-minus"></i>
+                            Sacar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transferência Modal -->
+        <div id="transferenciaModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-exchange-alt"></i> Realizar Transferência</h3>
+                    <button class="modal-close" onclick="fecharModal('transferenciaModal')">&times;</button>
+                </div>
+                <form id="transferenciaForm" onsubmit="realizarTransferencia(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="transferenciaOrigem">Conta de Origem</label>
+                        <select id="transferenciaOrigem" class="form-input" required>
+                            <option value="">Selecione a conta de origem</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="transferenciaDestino">Conta de Destino</label>
+                        <select id="transferenciaDestino" class="form-input" required>
+                            <option value="">Selecione a conta de destino</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="transferenciaValor">Valor (R$)</label>
+                        <input type="number" id="transferenciaValor" class="form-input" placeholder="0,00" step="0.01" min="0.01" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="fecharModal('transferenciaModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-exchange-alt"></i>
+                            Transferir
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Pagamento Modal -->
+        <div id="pagamentoModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-credit-card"></i> Realizar Pagamento</h3>
+                    <button class="modal-close" onclick="fecharModal('pagamentoModal')">&times;</button>
+                </div>
+                <form id="pagamentoForm" onsubmit="realizarPagamento(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="pagamentoConta">Conta</label>
+                        <select id="pagamentoConta" class="form-input" required>
+                            <option value="">Selecione uma conta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="pagamentoDescricao">Descrição</label>
+                        <input type="text" id="pagamentoDescricao" class="form-input" placeholder="Ex: Conta de luz" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="pagamentoValor">Valor (R$)</label>
+                        <input type="number" id="pagamentoValor" class="form-input" placeholder="0,00" step="0.01" min="0.01" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="fecharModal('pagamentoModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-credit-card"></i>
+                            Pagar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notification Container -->
+        <div id="notification-container"></div>
     </div>
 
     <script>
+        // Global Variables
         let authToken = localStorage.getItem('authToken');
         let currentUser = null;
+        let correntistas = [];
 
-        // Verificar se usuário já está logado
-        if (authToken) {
-            verificarToken();
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken) {
+                verificarToken();
+            }
+        });
+
+        // Utility Functions
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor);
         }
 
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR');
+        }
+
+        function mostrarNotificacao(mensagem, tipo = 'success') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${tipo}`;
+            notification.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check' : tipo === 'error' ? 'times' : 'exclamation'}"></i>
+                ${mensagem}
+            `;
+            
+            container.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            // Remove notification after 4 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => container.removeChild(notification), 300);
+            }, 4000);
+        }
+
+        function setLoading(element, loading = true) {
+            if (loading) {
+                element.classList.add('loading');
+                element.disabled = true;
+            } else {
+                element.classList.remove('loading');
+                element.disabled = false;
+            }
+        }
+
+        // Authentication Functions
         function mostrarLogin() {
             document.getElementById('login-form').classList.remove('hidden');
             document.getElementById('registro-form').classList.add('hidden');
-            document.getElementById('auth-status').innerHTML = '';
+            limparFormularios();
         }
 
         function mostrarRegistro() {
             document.getElementById('login-form').classList.add('hidden');
             document.getElementById('registro-form').classList.remove('hidden');
-            document.getElementById('auth-status').innerHTML = '';
+            limparFormularios();
         }
 
-        async function fazerRegistro() {
-            const nome = document.getElementById('regNome').value;
-            const email = document.getElementById('regEmail').value;
-            const senha = document.getElementById('regSenha').value;
-
-            if (!nome || !email || !senha) {
-                mostrarStatus('Preencha todos os campos', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch('/registro', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ nome, email, senha })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    authToken = data.token;
-                    currentUser = data.usuario;
-                    localStorage.setItem('authToken', authToken);
-                    mostrarStatus('Registro realizado com sucesso!', 'success');
-                    mostrarAreaLogada();
-                } else {
-                    mostrarStatus(data.erro || 'Erro no registro', 'error');
-                }
-            } catch (error) {
-                mostrarStatus('Erro de conexão: ' + error.message, 'error');
-            }
+        function limparFormularios() {
+            document.querySelectorAll('form').forEach(form => form.reset());
+            document.querySelectorAll('.form-input.error').forEach(input => 
+                input.classList.remove('error')
+            );
         }
 
-        async function fazerLogin() {
+        async function fazerLogin(event) {
+            event.preventDefault();
+            
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
+            const btnLogin = document.getElementById('loginBtn');
 
             if (!email || !senha) {
-                mostrarStatus('Preencha email e senha', 'error');
+                mostrarNotificacao('Preencha todos os campos', 'error');
                 return;
             }
+
+            setLoading(btnLogin, true);
 
             try {
                 const response = await fetch('/login', {
@@ -207,13 +954,62 @@
                     authToken = data.token;
                     currentUser = data.usuario;
                     localStorage.setItem('authToken', authToken);
-                    mostrarStatus('Login realizado com sucesso!', 'success');
+                    mostrarNotificacao('Login realizado com sucesso!', 'success');
                     mostrarAreaLogada();
                 } else {
-                    mostrarStatus(data.erro || 'Erro no login', 'error');
+                    mostrarNotificacao(data.erro || 'Erro no login', 'error');
                 }
             } catch (error) {
-                mostrarStatus('Erro de conexão: ' + error.message, 'error');
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
+            } finally {
+                setLoading(btnLogin, false);
+            }
+        }
+
+        async function fazerRegistro(event) {
+            event.preventDefault();
+            
+            const nome = document.getElementById('regNome').value;
+            const email = document.getElementById('regEmail').value;
+            const senha = document.getElementById('regSenha').value;
+            const btnRegister = document.getElementById('registerBtn');
+
+            if (!nome || !email || !senha) {
+                mostrarNotificacao('Preencha todos os campos', 'error');
+                return;
+            }
+
+            if (senha.length < 6) {
+                mostrarNotificacao('A senha deve ter pelo menos 6 caracteres', 'error');
+                return;
+            }
+
+            setLoading(btnRegister, true);
+
+            try {
+                const response = await fetch('/registro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.usuario;
+                    localStorage.setItem('authToken', authToken);
+                    mostrarNotificacao('Registro realizado com sucesso!', 'success');
+                    mostrarAreaLogada();
+                } else {
+                    mostrarNotificacao(data.erro || 'Erro no registro', 'error');
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
+            } finally {
+                setLoading(btnRegister, false);
             }
         }
 
@@ -240,75 +1036,465 @@
         function logout() {
             authToken = null;
             currentUser = null;
+            correntistas = [];
             localStorage.removeItem('authToken');
             
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('user-section').classList.add('hidden');
-            document.getElementById('api-section').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('main-app').classList.add('hidden');
             
             mostrarLogin();
-            document.getElementById('result').textContent = 'Faça login para usar a API...';
-            mostrarStatus('', '');
         }
 
         function mostrarAreaLogada() {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('user-section').classList.remove('hidden');
-            document.getElementById('api-section').classList.remove('hidden');
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
             
-            document.getElementById('user-name').textContent = currentUser.nome;
-            document.getElementById('user-email').textContent = currentUser.email;
-            document.getElementById('result').textContent = 'Usuário logado! Teste os endpoints acima...';
+            document.getElementById('header-user-name').textContent = currentUser.nome;
+            
+            // Load initial data
+            carregarDashboard();
         }
 
-        function mostrarStatus(mensagem, tipo) {
-            const statusDiv = document.getElementById('auth-status');
-            statusDiv.textContent = mensagem;
-            statusDiv.className = `status ${tipo}`;
+        // Dashboard Functions
+        async function carregarDashboard() {
+            await Promise.all([
+                carregarCorrentistas(),
+                carregarMovimentacoes(),
+                atualizarEstatisticas()
+            ]);
         }
 
-        const resultDiv = document.getElementById('result');
-
-        async function fetchData(endpoint) {
-            if (!authToken) {
-                resultDiv.textContent = 'Erro: Você precisa estar logado para acessar este endpoint.';
-                return;
-            }
-
+        async function carregarCorrentistas() {
             try {
-                const response = await fetch(endpoint, {
+                const response = await fetch('/correntistas', {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
-                const data = await response.json();
-                resultDiv.textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok) {
+                    correntistas = await response.json();
+                    atualizarListaContas();
+                    atualizarSelectsContas();
+                } else {
+                    mostrarNotificacao('Erro ao carregar contas', 'error');
+                }
             } catch (error) {
-                resultDiv.textContent = 'Erro ao buscar dados da API: ' + error.message;
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
             }
         }
 
-        async function postData(endpoint, body) {
-            if (!authToken) {
-                resultDiv.textContent = 'Erro: Você precisa estar logado para acessar este endpoint.';
+        function atualizarListaContas() {
+            const container = document.getElementById('contas-lista');
+            
+            if (correntistas.length === 0) {
+                container.innerHTML = `
+                    <p class="text-center" style="color: var(--text-secondary); padding: 2rem;">
+                        Nenhuma conta encontrada
+                    </p>
+                `;
+                return;
+            }
+
+            container.innerHTML = correntistas.map(conta => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                    <div>
+                        <div style="font-weight: 600;">${conta.NomeCorrentista}</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">Conta ${conta.CorrentistaID}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">
+                            ${formatarMoeda(conta.Saldo)}
+                        </div>
+                        <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; margin-top: 0.25rem;" onclick="verExtrato(${conta.CorrentistaID})">
+                            Ver Extrato
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function atualizarSelectsContas() {
+            const selects = [
+                'depositoConta',
+                'saqueConta', 
+                'transferenciaOrigem',
+                'transferenciaDestino',
+                'pagamentoConta'
+            ];
+
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                const isDestino = selectId === 'transferenciaDestino';
+                
+                select.innerHTML = `<option value="">Selecione uma conta</option>` +
+                    correntistas.map(conta => 
+                        `<option value="${conta.CorrentistaID}">
+                            ${conta.NomeCorrentista} - ${formatarMoeda(conta.Saldo)}
+                        </option>`
+                    ).join('');
+            });
+        }
+
+        async function carregarMovimentacoes() {
+            try {
+                const response = await fetch('/movimentacoes', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const movimentacoes = await response.json();
+                    atualizarTabelaMovimentacoes(movimentacoes);
+                } else {
+                    mostrarNotificacao('Erro ao carregar movimentações', 'error');
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        function atualizarTabelaMovimentacoes(movimentacoes) {
+            const tbody = document.getElementById('movimentacoes-tbody');
+            
+            if (movimentacoes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center" style="padding: 2rem; color: var(--text-secondary);">
+                            Nenhuma movimentação encontrada
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Mostrar apenas as 10 mais recentes
+            const recentes = movimentacoes.slice(0, 10);
+            
+            tbody.innerHTML = recentes.map(mov => `
+                <tr>
+                    <td>${formatarData(mov.DataOperacao)}</td>
+                    <td>
+                        <span class="text-${mov.TipoOperacao === 'Crédito' ? 'success' : 'danger'}">
+                            <i class="fas fa-${mov.TipoOperacao === 'Crédito' ? 'arrow-down' : 'arrow-up'}"></i>
+                            ${mov.TipoOperacao}
+                        </span>
+                    </td>
+                    <td>${mov.Descricao}</td>
+                    <td class="text-${mov.TipoOperacao === 'Crédito' ? 'success' : 'danger'}">
+                        ${mov.TipoOperacao === 'Crédito' ? '+' : '-'} ${formatarMoeda(mov.ValorOperacao)}
+                    </td>
+                    <td>${mov.NomeCorrentista}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function atualizarEstatisticas() {
+            if (correntistas.length === 0) return;
+
+            try {
+                const response = await fetch('/movimentacoes', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const movimentacoes = await response.json();
+                    
+                    const saldoTotal = correntistas.reduce((sum, conta) => sum + conta.Saldo, 0);
+                    const receitas = movimentacoes
+                        .filter(mov => mov.TipoOperacao === 'Crédito')
+                        .reduce((sum, mov) => sum + mov.ValorOperacao, 0);
+                    const despesas = movimentacoes
+                        .filter(mov => mov.TipoOperacao === 'Débito')
+                        .reduce((sum, mov) => sum + mov.ValorOperacao, 0);
+
+                    document.getElementById('saldo-total').textContent = formatarMoeda(saldoTotal);
+                    document.getElementById('total-receitas').textContent = formatarMoeda(receitas);
+                    document.getElementById('total-despesas').textContent = formatarMoeda(despesas);
+                    document.getElementById('total-movimentacoes').textContent = movimentacoes.length;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        // Modal Functions
+        function abrirModal(tipo) {
+            if (correntistas.length === 0) {
+                mostrarNotificacao('Carregue suas contas primeiro', 'warning');
+                return;
+            }
+
+            const modalId = tipo + 'Modal';
+            document.getElementById(modalId).classList.add('active');
+            
+            // Focus no primeiro input
+            setTimeout(() => {
+                const firstInput = document.querySelector(`#${modalId} input, #${modalId} select`);
+                if (firstInput) firstInput.focus();
+            }, 100);
+        }
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            
+            // Reset form
+            const form = document.querySelector(`#${modalId} form`);
+            if (form) form.reset();
+        }
+
+        // Transaction Functions
+        async function realizarDeposito(event) {
+            event.preventDefault();
+            
+            const contaId = document.getElementById('depositoConta').value;
+            const valor = parseFloat(document.getElementById('depositoValor').value);
+            
+            if (!contaId || !valor || valor <= 0) {
+                mostrarNotificacao('Preencha todos os campos corretamente', 'error');
                 return;
             }
 
             try {
-                const response = await fetch(endpoint, {
+                const response = await fetch('/deposito', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`
                     },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({
+                        correntista_id: parseInt(contaId),
+                        valor: valor
+                    })
                 });
+
                 const data = await response.json();
-                resultDiv.textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok) {
+                    mostrarNotificacao(`Depósito de ${formatarMoeda(valor)} realizado com sucesso!`, 'success');
+                    fecharModal('depositoModal');
+                    carregarDashboard();
+                } else {
+                    mostrarNotificacao(data.erro || 'Erro ao realizar depósito', 'error');
+                }
             } catch (error) {
-                resultDiv.textContent = 'Erro ao enviar dados para a API: ' + error.message;
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
             }
         }
+
+        async function realizarSaque(event) {
+            event.preventDefault();
+            
+            const contaId = document.getElementById('saqueConta').value;
+            const valor = parseFloat(document.getElementById('saqueValor').value);
+            
+            if (!contaId || !valor || valor <= 0) {
+                mostrarNotificacao('Preencha todos os campos corretamente', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/saque', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        correntista_id: parseInt(contaId),
+                        valor: valor
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    mostrarNotificacao(`Saque de ${formatarMoeda(valor)} realizado com sucesso!`, 'success');
+                    fecharModal('saqueModal');
+                    carregarDashboard();
+                } else {
+                    mostrarNotificacao(data.erro || 'Erro ao realizar saque', 'error');
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        async function realizarTransferencia(event) {
+            event.preventDefault();
+            
+            const origemId = document.getElementById('transferenciaOrigem').value;
+            const destinoId = document.getElementById('transferenciaDestino').value;
+            const valor = parseFloat(document.getElementById('transferenciaValor').value);
+            
+            if (!origemId || !destinoId || !valor || valor <= 0) {
+                mostrarNotificacao('Preencha todos os campos corretamente', 'error');
+                return;
+            }
+
+            if (origemId === destinoId) {
+                mostrarNotificacao('As contas de origem e destino devem ser diferentes', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/transferencia', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        correntista_id_origem: parseInt(origemId),
+                        correntista_id_destino: parseInt(destinoId),
+                        valor: valor
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    mostrarNotificacao(`Transferência de ${formatarMoeda(valor)} realizada com sucesso!`, 'success');
+                    fecharModal('transferenciaModal');
+                    carregarDashboard();
+                } else {
+                    mostrarNotificacao(data.erro || 'Erro ao realizar transferência', 'error');
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        async function realizarPagamento(event) {
+            event.preventDefault();
+            
+            const contaId = document.getElementById('pagamentoConta').value;
+            const descricao = document.getElementById('pagamentoDescricao').value;
+            const valor = parseFloat(document.getElementById('pagamentoValor').value);
+            
+            if (!contaId || !descricao || !valor || valor <= 0) {
+                mostrarNotificacao('Preencha todos os campos corretamente', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/pagamento', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        correntista_id: parseInt(contaId),
+                        valor: valor,
+                        descricao: descricao
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    mostrarNotificacao(`Pagamento "${descricao}" de ${formatarMoeda(valor)} realizado com sucesso!`, 'success');
+                    fecharModal('pagamentoModal');
+                    carregarDashboard();
+                } else {
+                    mostrarNotificacao(data.erro || 'Erro ao realizar pagamento', 'error');
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        async function verExtrato(contaId) {
+            try {
+                const response = await fetch(`/extrato/${contaId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const extrato = await response.json();
+                    mostrarExtratoModal(extrato, contaId);
+                } else {
+                    mostrarNotificacao('Erro ao carregar extrato', 'error');
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        function mostrarExtratoModal(extrato, contaId) {
+            const conta = correntistas.find(c => c.CorrentistaID === contaId);
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-file-alt"></i> Extrato - ${conta.NomeCorrentista}</h3>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Descrição</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${extrato.length > 0 ? extrato.map(mov => `
+                                    <tr>
+                                        <td>${formatarData(mov.DataOperacao)}</td>
+                                        <td>
+                                            <span class="text-${mov.TipoOperacao === 'Crédito' ? 'success' : 'danger'}">
+                                                <i class="fas fa-${mov.TipoOperacao === 'Crédito' ? 'arrow-down' : 'arrow-up'}"></i>
+                                                ${mov.TipoOperacao}
+                                            </span>
+                                        </td>
+                                        <td>${mov.Descricao}</td>
+                                        <td class="text-${mov.TipoOperacao === 'Crédito' ? 'success' : 'danger'}">
+                                            ${mov.TipoOperacao === 'Crédito' ? '+' : '-'} ${formatarMoeda(mov.ValorOperacao)}
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="4" class="text-center" style="padding: 2rem; color: var(--text-secondary);">
+                                            Nenhuma movimentação encontrada
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
     </script>
 </body>
 </html>

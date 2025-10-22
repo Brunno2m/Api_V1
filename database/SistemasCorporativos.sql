@@ -48,7 +48,7 @@ INNER JOIN Movimentacoes AS M
 LEFT JOIN Correntistas AS B
   ON M.CorrentistaBeneficiarioID = B.CorrentistaID;
 
--- Criar os Procedures (Opcional, mas útil para o sistema)
+-- Criar os Procedures com validações de saldo e atualização automática
 -- O MySQL usa a sintaxe DELIMITER para procedures
 
 DELIMITER $$
@@ -57,8 +57,14 @@ CREATE PROCEDURE spDepositar(
     IN p_ValorDeposito DECIMAL(15, 2)
 )
 BEGIN
+    -- Inserir movimentação de crédito
     INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao)
     VALUES ('C', p_CorrentistaID, p_ValorDeposito, NOW(), 'Depósito em conta');
+    
+    -- Atualizar saldo do correntista
+    UPDATE Correntistas 
+    SET Saldo = Saldo + p_ValorDeposito 
+    WHERE CorrentistaID = p_CorrentistaID;
 END$$
 DELIMITER ;
 
@@ -68,8 +74,22 @@ CREATE PROCEDURE spSacar(
     IN p_ValorSaque DECIMAL(15, 2)
 )
 BEGIN
-    INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao)
-    VALUES ('D', p_CorrentistaID, p_ValorSaque, NOW(), 'Saque');
+    -- Verificar se há saldo suficiente
+    DECLARE saldo_atual DECIMAL(15, 2);
+    SELECT Saldo INTO saldo_atual FROM Correntistas WHERE CorrentistaID = p_CorrentistaID;
+    
+    IF saldo_atual >= p_ValorSaque THEN
+        -- Inserir movimentação de débito
+        INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao)
+        VALUES ('D', p_CorrentistaID, p_ValorSaque, NOW(), 'Saque');
+        
+        -- Atualizar saldo do correntista
+        UPDATE Correntistas 
+        SET Saldo = Saldo - p_ValorSaque 
+        WHERE CorrentistaID = p_CorrentistaID;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Saldo insuficiente para realizar o saque';
+    END IF;
 END$$
 DELIMITER ;
 
@@ -80,8 +100,22 @@ CREATE PROCEDURE spPagar(
     IN p_Descricao VARCHAR(50)
 )
 BEGIN
-    INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao)
-    VALUES ('D', p_CorrentistaID, p_ValorOperacao, NOW(), CONCAT('Pagamento: ', p_Descricao));
+    -- Verificar se há saldo suficiente
+    DECLARE saldo_atual DECIMAL(15, 2);
+    SELECT Saldo INTO saldo_atual FROM Correntistas WHERE CorrentistaID = p_CorrentistaID;
+    
+    IF saldo_atual >= p_ValorOperacao THEN
+        -- Inserir movimentação de débito
+        INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao)
+        VALUES ('D', p_CorrentistaID, p_ValorOperacao, NOW(), CONCAT('Pagamento: ', p_Descricao));
+        
+        -- Atualizar saldo do correntista
+        UPDATE Correntistas 
+        SET Saldo = Saldo - p_ValorOperacao 
+        WHERE CorrentistaID = p_CorrentistaID;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Saldo insuficiente para realizar o pagamento';
+    END IF;
 END$$
 DELIMITER ;
 
@@ -92,8 +126,38 @@ CREATE PROCEDURE spTransferir(
     IN p_CorrentistaBeneficiarioID INT
 )
 BEGIN
-    INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao, CorrentistaBeneficiarioID)
-    VALUES ('D', p_CorrentistaID, p_ValorOperacao, NOW(), 'Transferência', p_CorrentistaBeneficiarioID);
+    DECLARE saldo_atual DECIMAL(15, 2);
+    DECLARE beneficiario_existe INT DEFAULT 0;
+    
+    -- Verificar se há saldo suficiente
+    SELECT Saldo INTO saldo_atual FROM Correntistas WHERE CorrentistaID = p_CorrentistaID;
+    
+    -- Verificar se o beneficiário existe
+    SELECT COUNT(*) INTO beneficiario_existe FROM Correntistas WHERE CorrentistaID = p_CorrentistaBeneficiarioID;
+    
+    IF beneficiario_existe = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Correntista beneficiário não encontrado';
+    ELSEIF saldo_atual >= p_ValorOperacao THEN
+        -- Débito do pagador
+        INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao, CorrentistaBeneficiarioID)
+        VALUES ('D', p_CorrentistaID, p_ValorOperacao, NOW(), 'Transferência', p_CorrentistaBeneficiarioID);
+        
+        -- Crédito do beneficiário
+        INSERT INTO Movimentacoes(TipoOperacao, CorrentistaID, ValorOperacao, DataOperacao, Descricao, CorrentistaBeneficiarioID)
+        VALUES ('C', p_CorrentistaBeneficiarioID, p_ValorOperacao, NOW(), 'Transferência recebida', p_CorrentistaID);
+        
+        -- Atualizar saldo do pagador
+        UPDATE Correntistas 
+        SET Saldo = Saldo - p_ValorOperacao 
+        WHERE CorrentistaID = p_CorrentistaID;
+        
+        -- Atualizar saldo do beneficiário
+        UPDATE Correntistas 
+        SET Saldo = Saldo + p_ValorOperacao 
+        WHERE CorrentistaID = p_CorrentistaBeneficiarioID;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Saldo insuficiente para realizar a transferência';
+    END IF;
 END$$
 DELIMITER ;
 
