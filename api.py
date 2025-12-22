@@ -1,5 +1,6 @@
 # api.py
 from flask import Flask, jsonify, request, render_template
+from flask_socketio import SocketIO, emit, disconnect
 import mysql.connector
 import jwt
 import bcrypt
@@ -13,6 +14,9 @@ load_dotenv()
 
 # A variável 'app' precisa ser definida antes de qualquer rota.
 app = Flask(__name__)
+
+# Configurar SocketIO para WebSocket
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # -----------------
 # Configuração do banco de dados MySQL
@@ -68,6 +72,16 @@ def hash_senha(senha):
 def verificar_senha(senha, hash_senha):
     """Verifica se a senha confere com o hash"""
     return bcrypt.checkpw(senha.encode('utf-8'), hash_senha.encode('utf-8'))
+
+def emitir_notificacao(usuario_id, tipo, mensagem, dados=None):
+    """Emite notificação em tempo real para um usuário específico"""
+    payload = {
+        'tipo': tipo,
+        'mensagem': mensagem,
+        'timestamp': datetime.utcnow().isoformat(),
+        'dados': dados or {}
+    }
+    socketio.emit('notificacao', payload, room=f'user_{usuario_id}')
 
 # -----------------
 # Decorador para proteger rotas
@@ -362,6 +376,14 @@ def pagar():
         conn.commit()
         cursor.close()
         conn.close()
+        
+        # Emitir notificação WebSocket
+        emitir_notificacao(
+            request.usuario_atual['usuario_id'],
+            'pagamento',
+            f'Pagamento de R$ {valor:.2f} realizado com sucesso',
+            {'valor': valor, 'descricao': descricao, 'correntista_id': correntista_id}
+        )
 
         return jsonify({"mensagem": "Pagamento realizado com sucesso"}), 201
     except mysql.connector.Error as ex:
@@ -398,6 +420,14 @@ def transferir():
         conn.commit()
         cursor.close()
         conn.close()
+        
+        # Emitir notificação WebSocket
+        emitir_notificacao(
+            request.usuario_atual['usuario_id'],
+            'transferencia',
+            f'Transferência de R$ {valor:.2f} realizada com sucesso',
+            {'valor': valor, 'origem_id': origem_id, 'destino_id': destino_id}
+        )
 
         return jsonify({"mensagem": "Transferência realizada com sucesso"}), 201
     except mysql.connector.Error as ex:
@@ -430,6 +460,14 @@ def sacar():
         conn.commit()
         cursor.close()
         conn.close()
+        
+        # Emitir notificação WebSocket
+        emitir_notificacao(
+            request.usuario_atual['usuario_id'],
+            'saque',
+            f'Saque de R$ {valor:.2f} realizado com sucesso',
+            {'valor': valor, 'correntista_id': correntista_id}
+        )
 
         return jsonify({"mensagem": "Saque realizado com sucesso"}), 201
     except mysql.connector.Error as ex:
@@ -462,10 +500,104 @@ def depositar():
         conn.commit()
         cursor.close()
         conn.close()
+        
+        # Emitir notificação WebSocket
+        emitir_notificacao(
+            request.usuario_atual['usuario_id'],
+            'deposito',
+            f'Depósito de R$ {valor:.2f} realizado com sucesso',
+            {'valor': valor, 'correntista_id': correntista_id}
+        )
 
         return jsonify({"mensagem": "Depósito realizado com sucesso"}), 201
     except mysql.connector.Error as ex:
         return jsonify({"erro": f"Erro ao realizar depósito: {ex}"}), 500
 
+# -----------------
+# Eventos WebSocket
+# -----------------
+@socketio.on('connect')
+def handle_connect():
+    """Evento disparado quando um cliente conecta"""
+    print('Cliente conectado')
+    emit('conexao', {'mensagem': 'Conectado ao servidor WebSocket'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Evento disparado quando um cliente desconecta"""
+    print('Cliente desconectado')
+
+@socketio.on('autenticar')
+def handle_autenticar(data):
+    """Autentica o usuário no WebSocket usando token JWT"""
+    try:
+        token = data.get('token')
+        if not token:
+            emit('erro', {'mensagem': 'Token não fornecido'})
+            return
+        
+        payload = verificar_token(token)
+        if payload is None:
+            emit('erro', {'mensagem': 'Token inválido ou expirado'})
+            disconnect()
+            return
+        
+        # Adicionar cliente à sala do usuário
+        from flask_socketio import join_room
+        usuario_id = payload['usuario_id']
+        join_room(f'user_{usuario_id}')
+        
+        emit('autenticado', {
+            'mensagem': 'Autenticado com sucesso',
+            'usuario_id': usuario_id,
+            'email': payload['email']
+        })
+        
+        print(f'Usuário {usuario_id} autenticado no WebSocket')
+        
+    except Exception as e:
+        emit('erro', {'mensagem': f'Erro na autenticação: {str(e)}'})
+        disconnect()
+
+@socketio.on('solicitar_saldo')
+def handle_solicitar_saldo(data):
+    """Retorna o saldo atualizado de um correntista"""
+    try:
+        token = data.get('token')
+        correntista_id = data.get('correntista_id')
+        
+        if not token or not correntista_id:
+            emit('erro', {'mensagem': 'Token e correntista_id são obrigatórios'})
+            return
+        
+        payload = verificar_token(token)
+        if payload is None:
+            emit('erro', {'mensagem': 'Token inválido'})
+            return
+        
+        # Verificar se o correntista pertence ao usuário
+        if not verificar_correntista_usuario(correntista_id, payload['usuario_id']):
+            emit('erro', {'mensagem': 'Correntista não autorizado'})
+            return
+        
+        # Buscar saldo atualizado
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT CorrentistaID, NomeCorrentista, Saldo FROM Correntistas WHERE CorrentistaID = %s",
+            (correntista_id,)
+        )
+        correntista = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if correntista:
+            emit('saldo_atualizado', correntista)
+        else:
+            emit('erro', {'mensagem': 'Correntista não encontrado'})
+            
+    except Exception as e:
+        emit('erro', {'mensagem': f'Erro ao buscar saldo: {str(e)}'})
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)

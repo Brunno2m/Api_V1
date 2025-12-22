@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinanceApp - Sistema Bancário Digital</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -409,6 +410,47 @@
 
         .notification.warning {
             background: var(--warning-color);
+        }
+
+        /* Status de conexão WebSocket */
+        .connection-status {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 2rem;
+            background: var(--surface-color);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 1000;
+            border: 2px solid var(--border-color);
+        }
+
+        .connection-status.connected {
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .connection-status.disconnected {
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .connection-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         /* Utilities */
@@ -846,6 +888,12 @@
 
         <!-- Notification Container -->
         <div id="notification-container"></div>
+
+        <!-- Connection Status Indicator -->
+        <div id="connection-status" class="connection-status disconnected">
+            <div class="connection-pulse"></div>
+            <span id="connection-text">Desconectado</span>
+        </div>
     </div>
 
     <script>
@@ -853,9 +901,13 @@
         let authToken = localStorage.getItem('authToken');
         let currentUser = null;
         let correntistas = [];
+        let socket = null;
+        let isSocketConnected = false;
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
+            initSocketIO();
+            
             if (authToken) {
                 verificarToken();
             }
@@ -905,7 +957,134 @@
             }
         }
 
+        // =====================================
+        // WebSocket Functions
+        // =====================================
+        function initSocketIO() {
+            console.log('Inicializando Socket.IO...');
+            socket = io({
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: 5
+            });
+
+            // Evento: Conexão estabelecida
+            socket.on('connect', function() {
+                console.log('WebSocket conectado!');
+                isSocketConnected = true;
+                atualizarStatusConexao(true);
+                
+                // Se estiver autenticado, enviar token
+                if (authToken) {
+                    autenticarWebSocket();
+                }
+            });
+
+            // Evento: Desconexão
+            socket.on('disconnect', function() {
+                console.log('WebSocket desconectado');
+                isSocketConnected = false;
+                atualizarStatusConexao(false);
+            });
+
+            // Evento: Erro de conexão
+            socket.on('connect_error', function(error) {
+                console.error('Erro de conexão WebSocket:', error);
+                isSocketConnected = false;
+                atualizarStatusConexao(false);
+            });
+
+            // Evento: Conexão confirmada
+            socket.on('conexao', function(data) {
+                console.log('Mensagem do servidor:', data.mensagem);
+            });
+
+            // Evento: Autenticação bem-sucedida
+            socket.on('autenticado', function(data) {
+                console.log('Autenticado no WebSocket:', data);
+                mostrarNotificacao('Conexão em tempo real ativada! 🔔', 'success');
+            });
+
+            // Evento: Erro
+            socket.on('erro', function(data) {
+                console.error('Erro WebSocket:', data.mensagem);
+            });
+
+            // Evento: Notificação em tempo real
+            socket.on('notificacao', function(data) {
+                console.log('Notificação recebida:', data);
+                
+                // Mostrar notificação visual
+                const icones = {
+                    'deposito': 'fa-plus-circle',
+                    'saque': 'fa-minus-circle',
+                    'transferencia': 'fa-exchange-alt',
+                    'pagamento': 'fa-credit-card'
+                };
+                
+                const icone = icones[data.tipo] || 'fa-bell';
+                
+                mostrarNotificacao(`
+                    <i class="fas ${icone}"></i> ${data.mensagem}
+                `, 'success');
+                
+                // Atualizar dashboard automaticamente
+                setTimeout(() => {
+                    carregarDashboard();
+                }, 500);
+            });
+
+            // Evento: Saldo atualizado
+            socket.on('saldo_atualizado', function(data) {
+                console.log('Saldo atualizado:', data);
+                
+                // Atualizar o saldo na lista de contas
+                const conta = correntistas.find(c => c.CorrentistaID === data.CorrentistaID);
+                if (conta) {
+                    conta.Saldo = data.Saldo;
+                    atualizarListaContas();
+                    atualizarSelectsContas();
+                    atualizarEstatisticas();
+                }
+            });
+        }
+
+        function autenticarWebSocket() {
+            if (socket && isSocketConnected && authToken) {
+                console.log('Autenticando WebSocket com token...');
+                socket.emit('autenticar', { token: authToken });
+            }
+        }
+
+        function atualizarStatusConexao(conectado) {
+            const statusEl = document.getElementById('connection-status');
+            const textEl = document.getElementById('connection-text');
+            
+            if (conectado) {
+                statusEl.classList.remove('disconnected');
+                statusEl.classList.add('connected');
+                textEl.textContent = 'Conectado';
+            } else {
+                statusEl.classList.remove('connected');
+                statusEl.classList.add('disconnected');
+                textEl.textContent = 'Desconectado';
+            }
+        }
+
+        function solicitarSaldoAtualizado(contaId) {
+            if (socket && isSocketConnected && authToken) {
+                socket.emit('solicitar_saldo', {
+                    token: authToken,
+                    correntista_id: contaId
+                });
+            }
+        }
+
+        // =====================================
         // Authentication Functions
+        // =====================================
         function mostrarLogin() {
             document.getElementById('login-form').classList.remove('hidden');
             document.getElementById('registro-form').classList.add('hidden');
@@ -955,6 +1134,10 @@
                     currentUser = data.usuario;
                     localStorage.setItem('authToken', authToken);
                     mostrarNotificacao('Login realizado com sucesso!', 'success');
+                    
+                    // Autenticar WebSocket
+                    autenticarWebSocket();
+                    
                     mostrarAreaLogada();
                 } else {
                     mostrarNotificacao(data.erro || 'Erro no login', 'error');
@@ -1002,6 +1185,10 @@
                     currentUser = data.usuario;
                     localStorage.setItem('authToken', authToken);
                     mostrarNotificacao('Registro realizado com sucesso!', 'success');
+                    
+                    // Autenticar WebSocket
+                    autenticarWebSocket();
+                    
                     mostrarAreaLogada();
                 } else {
                     mostrarNotificacao(data.erro || 'Erro no registro', 'error');
@@ -1024,6 +1211,10 @@
                 if (response.ok) {
                     const data = await response.json();
                     currentUser = data.usuario;
+                    
+                    // Autenticar WebSocket
+                    autenticarWebSocket();
+                    
                     mostrarAreaLogada();
                 } else {
                     logout();
