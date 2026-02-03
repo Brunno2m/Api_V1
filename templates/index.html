@@ -1026,9 +1026,9 @@
                 
                 const icone = icones[data.tipo] || 'fa-bell';
                 
-                mostrarNotificacao(`
-                    <i class="fas ${icone}"></i> ${data.mensagem}
-                `, 'success');
+                mostrarNotificacao(
+                    '<i class="fas ' + icone + '"></i> ' + data.mensagem, 'success'
+                );
                 
                 // Atualizar dashboard automaticamente
                 setTimeout(() => {
@@ -1467,7 +1467,8 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    mostrarNotificacao(`Depósito de ${formatarMoeda(valor)} realizado com sucesso!`, 'success');
+                    const valorFormatado = formatarMoeda(valor);
+                    mostrarNotificacao('Depósito de ' + valorFormatado + ' realizado com sucesso!', 'success');
                     fecharModal('depositoModal');
                     carregarDashboard();
                 } else {
@@ -1505,7 +1506,8 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    mostrarNotificacao(`Saque de ${formatarMoeda(valor)} realizado com sucesso!`, 'success');
+                    const valorFormatado = formatarMoeda(valor);
+                    mostrarNotificacao('Saque de ' + valorFormatado + ' realizado com sucesso!', 'success');
                     fecharModal('saqueModal');
                     carregarDashboard();
                 } else {
@@ -1550,7 +1552,8 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    mostrarNotificacao(`Transferência de ${formatarMoeda(valor)} realizada com sucesso!`, 'success');
+                    const valorFormatado = formatarMoeda(valor);
+                    mostrarNotificacao('Transferência de ' + valorFormatado + ' realizada com sucesso!', 'success');
                     fecharModal('transferenciaModal');
                     carregarDashboard();
                 } else {
@@ -1590,7 +1593,8 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    mostrarNotificacao(`Pagamento "${descricao}" de ${formatarMoeda(valor)} realizado com sucesso!`, 'success');
+                    const valorFormatado = formatarMoeda(valor);
+                    mostrarNotificacao('Pagamento "' + descricao + '" de ' + valorFormatado + ' realizado com sucesso!', 'success');
                     fecharModal('pagamentoModal');
                     carregarDashboard();
                 } else {
