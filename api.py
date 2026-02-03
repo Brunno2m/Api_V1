@@ -416,7 +416,7 @@ def transferir():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.callproc('spTransferir', (origem_id, valor, destino_id))
+        cursor.callproc('spTransferir', (origem_id, destino_id, valor))
         conn.commit()
         cursor.close()
         conn.close()
