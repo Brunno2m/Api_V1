@@ -34,3 +34,4 @@ test_*.py
 *_test.py
 diagnostico*.py
 setup_*.py
+fix_*.py
