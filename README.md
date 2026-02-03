@@ -1,103 +1,89 @@
-# API de Movimentações Financeiras com Autenticação JWT
+# 🏦 API de Movimentações Financeiras com JWT
 
-Uma API RESTful segura para gerenciar e consultar movimentações financeiras, desenvolvida com **Flask** e **Python**, utilizando **MySQL** como banco de dados e **JWT** para autenticação. Este projeto demo## 🛡️ Melhorias de Segurança e Interface Implementadas
+API RESTful segura para gerenciar operações bancárias (depósitos, saques, transferências e pagamentos) com autenticação JWT, WebSocket em tempo real e interface web moderna.
 
-Esta versão final inclui:
+## ✨ Principais Recursos
 
-### 🔒 Segurança:
-- ✅ **Autenticação JWT obrigatória** para todos os endpoints
-- ✅ **Controle de acesso por usuário** - isolamento de dados
-- ✅ **Hash seguro de senhas** com bcrypt
-- ✅ **Validação robusta de entrada** em todas as operações
-- ✅ **Configurações via variáveis de ambiente** (.env)
-- ✅ **Verificação de propriedade de recursos**
-- ✅ **Tokens com expiração configurável**
-
-### 🎨 Interface e Experiência:
-- ✅ **Interface web moderna e responsiva**
-- ✅ **Dashboard bancário profissional**
-- ✅ **Sistema de modais para operações**
-- ✅ **Notificações visuais de feedback**
-- ✅ **Testador de API integrado**
-- ✅ **Gerenciamento automático de sessão JWT**
-- ✅ **Design compatível com dispositivos móveis**
-
-### 🚀 Funcionalidades Avançadas:
-- ✅ **Scripts de debug e correção automática**
-- ✅ **Documentação completa com troubleshooting**
-- ✅ **Ambiente de desenvolvimento configurado**
-- ✅ **Pronto para produção com melhorias de segurança**lementação de APIs seguras com controle de acesso baseado em tokens.
+- 🔐 **Autenticação JWT** com tokens expiráveis
+- 💰 **Operações bancárias completas** (depósito, saque, transferência, pagamento)
+- 🔌 **WebSocket** para notificações em tempo real
+- 🎨 **Interface web moderna** e responsiva
+- 🛡️ **Segurança**: bcrypt, validação de dados, controle de acesso por usuário
+- 📊 **Dashboard interativo** com visualização de saldos e extratos
+- 🧪 **Testador de API integrado**
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+## 🚀 Tecnologias
 
-* **Python 3.x:** Linguagem de programação.
-* **Flask:** Micro-framework web para a criação da API.
-* **MySQL:** Sistema de gerenciamento de banco de dados.
-* **JWT (JSON Web Tokens):** Sistema de autenticação stateless.
-* **bcrypt:** Hash seguro para senhas.
-* **python-dotenv:** Gerenciamento de variáveis de ambiente.
-* **XAMPP:** Ambiente de desenvolvimento para o servidor web e o banco de dados.
-* **`mysql-connector-python`:** Driver para conectar o Python ao MySQL.
-* **HTML5/CSS3/JavaScript:** Interface web moderna e responsiva.
-* **Font Awesome:** Ícones profissionais para a interface.
+- **Backend**: Python 3.x, Flask 3.1.2, Flask-SocketIO 5.3.6
+- **Banco de Dados**: MySQL 8.x
+- **Autenticação**: PyJWT 2.8.0, bcrypt 4.1.2
+- **Frontend**: HTML5, CSS3, JavaScript (Socket.IO client)
+- **Outros**: python-dotenv, mysql-connector-python
 
 ---
 
-## � Funcionalidades de Segurança
+## 📋 Pré-requisitos
 
-* **Autenticação JWT:** Todos os endpoints protegidos requerem token válido.
-* **Hash de senhas:** Senhas são criptografadas com bcrypt.
-* **Controle de acesso:** Usuários só podem acessar seus próprios dados.
-* **Validação de entrada:** Verificação de dados antes do processamento.
-* **Variáveis de ambiente:** Configurações sensíveis protegidas.
+- Python 3.x instalado
+- MySQL instalado (XAMPP, WAMP, ou MySQL standalone)
+- Git (opcional, para clonar o repositório)
 
 ---
 
-## �📋 Pré-requisitos
+## ⚙️ Instalação e Configuração
 
-Para rodar este projeto localmente, você precisa ter:
-
-* **Python 3.x** instalado.
-* **XAMPP** instalado e com os módulos **Apache** e **MySQL** em execução.
-
----
-
-## 🛠️ Instalação e Configuração
-
-Siga os passos abaixo para configurar o ambiente e rodar a API.
-
-### 1. Clonar o Repositório
+### 1️⃣ Clonar o Repositório
 
 ```bash
 git clone https://github.com/Brunno2m/Api_V1.git
 cd Api_V1
 ```
 
-### 2. Configurar o Banco de Dados
+Ou baixe o ZIP e extraia em uma pasta local.
 
-* Abra o painel de controle do XAMPP e inicie os módulos Apache e MySQL.
+### 2️⃣ Configurar o MySQL
 
-* Acesse o phpMyAdmin pelo seu navegador: `http://localhost/phpmyadmin`.
+#### Iniciar o MySQL
+- **XAMPP**: Abra o Control Panel → Start **MySQL**
+- **Outros**: Certifique-se que o serviço MySQL está rodando
 
-* Vá para a aba `SQL` e execute o script `SistemasCorporativos.sql` (disponível neste repositório) para criar o banco de dados, as tabelas, procedures e dados de exemplo.
+#### Criar o Banco de Dados
+1. Acesse: `http://localhost/phpmyadmin` (ou seu phpMyAdmin)
+2. Clique em **"Novo"** / **"New"**
+3. Nome: `SistemasCorporativos`
+4. Cotejamento: `utf8mb4_general_ci`
+5. Clique em **"Criar"**
 
-### 3. Instalar as Dependências
-No terminal, na pasta raiz do projeto, instale as bibliotecas Python necessárias:
+#### Importar as Tabelas e Procedures
+1. Selecione o banco `SistemasCorporativos` no menu lateral
+2. Clique na aba **"Importar"**
+3. Escolha o arquivo: `database/SistemasCorporativos.sql`
+4. Clique em **"Executar"**
+5. Aguarde: ✅ **"Importação finalizada com êxito"**
+
+### 3️⃣ Instalar Dependências Python
 
 ```bash
+# Recomendado: usar ambiente virtual
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Linux/Mac
+
+# Instalar dependências
 pip install -r requirements.txt
 ```
 
-### 4. Configurar Variáveis de Ambiente
-Crie um arquivo `.env` na raiz do projeto com suas configurações:
+### 4️⃣ Configurar Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 # Configurações do Banco de Dados
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=
+DB_PASSWORD=root
 DB_NAME=SistemasCorporativos
 
 # Configurações JWT
@@ -106,226 +92,377 @@ JWT_ALGORITHM=HS256
 JWT_EXPIRATION_HOURS=24
 ```
 
-**⚠️ IMPORTANTE:** Altere a `JWT_SECRET_KEY` para uma chave segura e única em produção!
+**⚠️ Notas:**
+- Para XAMPP padrão, `DB_PASSWORD` geralmente é vazio ou `root`
+- Se o MySQL estiver em porta diferente: `DB_HOST=localhost:3307`
+- **Altere a `JWT_SECRET_KEY` em produção!**
 
-### 5. Rodar a API
-No terminal, execute o comando para iniciar o servidor Flask:
+### 5️⃣ Iniciar o Servidor
 
 ```bash
 python api.py
 ```
 
-**Nota:** Se estiver usando ambiente virtual (recomendado), use o caminho completo:
-```bash
-# Windows
-.venv/Scripts/python.exe api.py
+ou
 
-# Linux/Mac
-.venv/bin/python api.py
+```bash
+python run_server.py
 ```
 
-A API estará rodando em `http://127.0.0.1:5000`.
+Aguarde a mensagem:
+```
+✅ MySQL conectado
+🌐 Acesse em seu navegador:
+   • http://localhost:5000
+```
+
+### 6️⃣ Acessar a Aplicação
+
+Abra o navegador em: **http://localhost:5000**
 
 ---
 
-## 🔑 Autenticação
+## 🔑 Credenciais de Teste
 
-### Credenciais Padrão para Testes
 - **Email:** `admin@teste.com`
-- **Senha:** `123456`
+- **Senha:** `senha123`
+
+Correntistas demo:
+- **João Silva** (ID: 1) - Saldo: R$ 1.000,00
+- **Maria Santos** (ID: 2) - Saldo: R$ 1.500,00
 
 ---
 
-## 🖥️ Endpoints da API
+## 📡 Endpoints da API
 
-### 1. Endpoints de Autenticação (Públicos)
+### Endpoints Públicos
 
-| Endpoint | Método | Descrição | Parâmetros |
-| :--- | :--- | :--- | :--- |
-| `/registro` | `POST` | Registra um novo usuário | `{"nome": "string", "email": "string", "senha": "string"}` |
-| `/login` | `POST` | Autentica usuário e retorna JWT | `{"email": "string", "senha": "string"}` |
+| Método | Endpoint | Descrição | Parâmetros |
+|--------|----------|-----------|------------|
+| POST | `/login` | Autenticar usuário | `{"email": "string", "senha": "string"}` |
+| POST | `/registro` | Registrar novo usuário | `{"nome": "string", "email": "string", "senha": "string"}` |
 
-### 2. Endpoints Protegidos (Requerem Token JWT)
+### Endpoints Protegidos (Requerem JWT)
 
-**Cabeçalho obrigatório:** `Authorization: Bearer <seu_token_jwt>`
+**Header obrigatório:** `Authorization: Bearer <token>`
 
-| Endpoint | Método | Descrição | Parâmetros |
-| :--- | :--- | :--- | :--- |
-| `/perfil` | `GET` | Retorna dados do usuário logado | - |
-| `/correntistas` | `GET` | Lista correntistas do usuário | - |
-| `/movimentacoes` | `GET` | Lista todas as movimentações do usuário | - |
-| `/extrato/<id>` | `GET` | Extrato de um correntista específico | - |
-| `/deposito` | `POST` | Realiza depósito | `{"correntista_id": int, "valor": float}` |
-| `/saque` | `POST` | Realiza saque | `{"correntista_id": int, "valor": float}` |
-| `/pagamento` | `POST` | Realiza pagamento | `{"correntista_id": int, "valor": float, "descricao": "string"}` |
-| `/transferencia` | `POST` | Realiza transferência | `{"correntista_id_origem": int, "correntista_id_destino": int, "valor": float}` |
-
----
-
-## 📱 Interface Web Moderna
-
-A aplicação inclui uma interface web profissional e responsiva com:
-
-* **Sistema de autenticação completo** (login/registro)
-* **Dashboard interativo** com informações do usuário
-* **Testador de endpoints integrado** com interface intuitiva
-* **Modais modernos** para operações financeiras
-* **Design responsivo** que funciona em desktop e mobile
-* **Notificações visuais** para feedback das operações
-* **Gerenciamento automático de sessão JWT**
-* **Tema moderno** com CSS variables e gradientes
-
-### Recursos da Interface:
-- 🏦 **Dashboard Bancário** com cards informativos
-- 💰 **Operações Financeiras** via modais interativos
-- 📊 **Visualização de Extratos** em tempo real
-- 🔄 **Testador de API** para desenvolvedores
-- 📱 **Design Responsivo** para todos os dispositivos
-- 🎨 **Interface Moderna** com Font Awesome icons
-
-Acesse `http://127.0.0.1:5000` após iniciar o servidor.
+| Método | Endpoint | Descrição | Parâmetros |
+|--------|----------|-----------|------------|
+| GET | `/perfil` | Dados do usuário logado | - |
+| GET | `/correntistas` | Listar correntistas | - |
+| GET | `/movimentacoes` | Listar movimentações | - |
+| GET | `/extrato/<id>` | Extrato de correntista | - |
+| POST | `/deposito` | Realizar depósito | `{"correntista_id": int, "valor": float}` |
+| POST | `/saque` | Realizar saque | `{"correntista_id": int, "valor": float}` |
+| POST | `/pagamento` | Realizar pagamento | `{"correntista_id": int, "valor": float, "descricao": "string"}` |
+| POST | `/transferencia` | Realizar transferência | `{"correntista_id_origem": int, "correntista_id_destino": int, "valor": float}` |
 
 ---
 
-## 🔒 Segurança Implementada
+## 🔌 WebSocket - Notificações em Tempo Real
 
-1. **Tokens JWT com expiração configurável**
-2. **Hash bcrypt para senhas**
-3. **Validação de propriedade de recursos**
-4. **Sanitização de dados de entrada**
-5. **Proteção contra acesso não autorizado**
-6. **Configurações sensíveis em variáveis de ambiente**
+### Recursos
+- ✅ Notificações instantâneas de operações bancárias
+- ✅ Atualização automática de saldos
+- ✅ Dashboard atualizado em tempo real
+- ✅ Autenticação JWT via WebSocket
+
+### Eventos do Cliente → Servidor
+
+#### `autenticar`
+```javascript
+socket.emit('autenticar', { token: 'seu-token-jwt' });
+```
+
+#### `solicitar_saldo`
+```javascript
+socket.emit('solicitar_saldo', {
+    token: 'seu-token-jwt',
+    correntista_id: 1
+});
+```
+
+### Eventos do Servidor → Cliente
+
+#### `conexao`
+Confirmação de conexão estabelecida.
+
+#### `notificacao`
+```javascript
+socket.on('notificacao', function(data) {
+    // data.tipo: 'deposito' | 'saque' | 'transferencia' | 'pagamento'
+    // data.mensagem: Mensagem descritiva
+    // data.timestamp: Data/hora
+    // data.dados: Dados adicionais
+});
+```
+
+#### `saldo_atualizado`
+```javascript
+socket.on('saldo_atualizado', function(data) {
+    // data.CorrentistaID
+    // data.NomeCorrentista
+    // data.Saldo
+});
+```
+
+### Indicador Visual
+🟢 **Verde** - Conectado (notificações ativas)  
+🔴 **Vermelho** - Desconectado (modo offline)
 
 ---
 
 ## 🧪 Como Testar
 
-### 1. Via Interface Web (Método Recomendado)
-1. Acesse `http://127.0.0.1:5000`
-2. Faça login com `admin@teste.com` / `123456`
-3. **Dashboard:** Visualize informações e realize operações bancárias
-4. **Testador de API:** Teste todos os endpoints de forma interativa
-
-### 2. Via Interface Web (Recomendado)
-1. Acesse `http://127.0.0.1:5000`
-2. Faça login com `admin@teste.com` / `123456`
+### Via Interface Web (Recomendado)
+1. Acesse `http://localhost:5000`
+2. Faça login com `admin@teste.com` / `senha123`
 3. Use o **Dashboard** para operações bancárias
-4. Use o **Testador de API** para testar todos os endpoints
+4. Use o **Testador de API** para testar endpoints
 
-### 3. Via cURL/Postman
+### Via cURL
 
 **Login:**
 ```bash
-curl -X POST http://127.0.0.1:5000/login \
+curl -X POST http://localhost:5000/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "admin@teste.com", "senha": "123456"}'
+  -d '{"email": "admin@teste.com", "senha": "senha123"}'
 ```
 
-**Usar endpoints protegidos:**
+**Resposta:**
+```json
+{
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "usuario": {"id": 1, "nome": "Admin", "email": "admin@teste.com"}
+}
+```
+
+**Listar correntistas:**
 ```bash
-curl -X GET http://127.0.0.1:5000/correntistas \
+curl -X GET http://localhost:5000/correntistas \
   -H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
 ---
 
-## �️ Troubleshooting (Solução de Problemas)
+## 🐛 Solução de Problemas
 
-### **Problema: "Table 'sistemascorporativos.usuarios' doesn't exist"**
-**Causa:** A tabela de usuários não foi criada no banco de dados.
+### ❌ Erro: "Can't connect to MySQL server"
+
+**Causas possíveis:**
+1. MySQL não está rodando
+2. Porta incorreta (padrão: 3306)
+3. Credenciais incorretas no `.env`
+
+**Soluções:**
+```bash
+# Verificar se MySQL está rodando
+# Windows (PowerShell)
+Get-Service MySQL80
+
+# Linux/Mac
+sudo systemctl status mysql
+
+# Verificar porta do MySQL
+netstat -ano | findstr :3306  # Windows
+lsof -i :3306  # Linux/Mac
+```
+
+- Verifique as credenciais no `.env`
+- Se MySQL estiver em porta diferente: `DB_HOST=localhost:3307`
+- Para XAMPP: abra Control Panel e clique em **Start** ao lado de MySQL
+
+### ❌ Erro: "Table 'sistemascorporativos.usuarios' doesn't exist"
+
+**Causa:** Banco não foi importado corretamente.
 
 **Solução:**
-1. Acesse phpMyAdmin: `http://localhost/phpmyadmin`
+1. Acesse phpMyAdmin
 2. Selecione o banco `SistemasCorporativos`
-3. Vá na aba "SQL" e execute o script completo `database/SistemasCorporativos.sql`
+3. Aba **SQL** → Execute o script `database/SistemasCorporativos.sql`
 
-### **Problema: "Email ou senha incorretos" (mesmo com credenciais corretas)**
-**Causa:** Hash da senha incorreto no banco de dados.
+### ❌ Erro: "PROCEDURE sistemascorporativos.spDepositar does not exist"
 
-**Solução:**
-Execute o script de correção:
-```bash
-py update_password.py
-```
-Este script atualiza o hash da senha do usuário admin para funcionar corretamente.
-
-**Script de debug completo disponível:**
-```bash
-py debug_login.py
-```
-Este script verifica a conexão com o banco, usuário existente e oferece opção de recriar o hash da senha.
-
-### **Problema: "PROCEDURE sistemascorporativos.spDepositar does not exist"**
-**Causa:** As stored procedures não foram criadas no banco de dados.
+**Causa:** Stored procedures não foram criadas.
 
 **Solução:**
-Execute o script verificador de procedures:
+Execute o script SQL completo no phpMyAdmin ou use:
 ```bash
-py check_procedures.py
+python check_procedures.py
 ```
-Este script verifica quais procedures existem e oferece a opção de criar as que estão faltando automaticamente.
 
-**Procedures necessárias:**
-- `spDepositar` - Para operações de depósito
-- `spSacar` - Para operações de saque
-- `spPagar` - Para operações de pagamento
-- `spTransferir` - Para operações de transferência
+As procedures necessárias:
+- `spDepositar` - Depósitos
+- `spSacar` - Saques
+- `spPagar` - Pagamentos
+- `spTransferir` - Transferências
+
+### ❌ Erro: "Address already in use" (Porta 5000 ocupada)
+
+**Windows:**
+```powershell
+# Encontrar processo
+Get-NetTCPConnection -LocalPort 5000 | Select-Object OwningProcess
+
+# Matar processo (substitua PID)
+Stop-Process -Id PID -Force
+```
+
+**Linux/Mac:**
+```bash
+lsof -ti:5000 | xargs kill -9
+```
+
+### ❌ Erro: "ModuleNotFoundError"
+
+**Solução:**
+```bash
+pip install -r requirements.txt
+```
+
+### ❌ Login retorna "Email ou senha incorretos" (mesmo com credenciais corretas)
+
+**Causa:** Hash de senha incorreto ou usuário não existe.
+
+**Solução:**
+```bash
+# Execute o script de correção
+python update_password.py
+
+# Ou verifique o login
+python debug_login.py
+```
+
+### ❌ WebSocket não conecta
+
+**Soluções:**
+1. Certifique-se de iniciar com `python api.py` (não `flask run`)
+2. Verifique console do navegador (F12 → Console/Network → WS)
+3. Firewall pode estar bloqueando - libere porta 5000
+
+### ❌ Erro 500 na interface
+
+**Solução:**
+1. Verifique terminal onde rodou `python api.py` para ver logs
+2. Verifique se todas as tabelas e procedures foram criadas
+3. Verifique credenciais do banco no `.env`
+
+---
+
+## 🛡️ Segurança Implementada
+
+- ✅ **Autenticação JWT obrigatória** para endpoints protegidos
+- ✅ **Hash bcrypt** para senhas (salt automático)
+- ✅ **Controle de acesso por usuário** (isolamento de dados)
+- ✅ **Validação de entrada** em todas as operações
+- ✅ **Tokens com expiração** configurável (padrão: 24h)
+- ✅ **Variáveis de ambiente** para dados sensíveis
+- ✅ **Verificação de propriedade** de recursos
+- ✅ **CORS configurável** (padrão: todas as origens)
+
+**⚠️ Produção:**
+- Altere `JWT_SECRET_KEY` para valor único e seguro
+- Configure `cors_allowed_origins` com domínios específicos
+- Desative debug mode: `debug=False`
+- Use HTTPS
+- Configure rate limiting
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+Api_V1/
+├── api.py                      # Aplicação principal
+├── run_server.py              # Script para iniciar servidor
+├── simple_server.py           # Servidor simplificado (sem WebSocket)
+├── requirements.txt           # Dependências Python
+├── .env                       # Variáveis de ambiente (criar manualmente)
+├── .gitignore                 # Arquivos ignorados pelo Git
+├── database/
+│   └── SistemasCorporativos.sql   # Schema do banco de dados
+├── templates/
+│   └── index.html             # Interface web
+├── update_password.py         # Script para atualizar senha
+├── debug_login.py            # Script de debug de login
+└── check_procedures.py       # Verificar stored procedures
+```
+
+---
+
+## 🎨 Interface Web
+
+### Recursos da Interface
+- 🏦 **Dashboard bancário** com cards informativos
+- 💰 **Modais interativos** para operações financeiras
+- 📊 **Visualização de extratos** em tempo real
+- 🔄 **Testador de API** integrado para desenvolvedores
+- 📱 **Design responsivo** (desktop e mobile)
+- 🎨 **Tema moderno** com gradientes e Font Awesome icons
+- 🔐 **Gerenciamento automático** de sessão JWT
+- 🔔 **Notificações visuais** de feedback
+- 🟢 **Indicador de conexão** WebSocket
+
+---
+
+## 📦 Stored Procedures
 
 Todas as procedures incluem:
-- ✅ **Validação de saldo** antes de débitos
-- ✅ **Atualização automática de saldos**
-- ✅ **Tratamento de erros** com mensagens claras
-- ✅ **Verificação de existência** de beneficiários (transferências)
+- ✅ Validação de saldo antes de débitos
+- ✅ Atualização automática de saldos
+- ✅ Tratamento de erros com mensagens claras
+- ✅ Verificação de existência de beneficiários
 
-### **Problema: Erro de conexão com MySQL**
-**Possíveis causas e soluções:**
+### `spDepositar(p_CorrentistaID, p_Valor, p_Descricao)`
+Credita valor na conta.
 
-1. **XAMPP não está rodando:**
-   - Abra o XAMPP Control Panel
-   - Inicie os serviços Apache e MySQL
+### `spSacar(p_CorrentistaID, p_Valor, p_Descricao)`
+Debita valor da conta (valida saldo).
 
-2. **Credenciais incorretas no arquivo `.env`:**
-   - Verifique se `DB_USER`, `DB_PASSWORD` e `DB_NAME` estão corretos
-   - Para XAMPP padrão: usuário `root`, senha vazia
+### `spPagar(p_CorrentistaID, p_Valor, p_Descricao)`
+Realiza pagamento (debita e registra descrição).
 
-3. **Nome do banco incorreto:**
-   - Certifique-se que o banco se chama exatamente `SistemasCorporativos`
-   - Verifique case-sensitivity (maiúsculas/minúsculas)
-
-### **Problema: Erro ao instalar dependências**
-**Solução:**
-```bash
-# Certifique-se de estar usando o Python correto
-pip install -r requirements.txt
-
-# Ou especificamente para o ambiente virtual
-.venv/Scripts/pip install -r requirements.txt
-```
-
-### **Problema: Porta 5000 já está em uso**
-**Solução:**
-Modifique a porta no final do arquivo `api.py`:
-```python
-if __name__ == '__main__':
-    app.run(debug=True, port=5001)  # Use porta diferente
-```
+### `spTransferir(p_CorrentistaOrigem, p_CorrentistaDestino, p_Valor)`
+Transfere valor entre contas (valida saldo e existência).
 
 ---
 
-## �🛡️ Melhorias de Segurança Implementadas
+## 👥 Desenvolvedores
 
-Comparado à versão anterior, esta versão inclui:
-
-- ✅ **Autenticação JWT obrigatória**
-- ✅ **Controle de acesso por usuário**
-- ✅ **Hash seguro de senhas**
-- ✅ **Validação robusta de entrada**
-- ✅ **Configurações via variáveis de ambiente**
-- ✅ **Verificação de propriedade de recursos**
-- ✅ **Interface web com gerenciamento de sessão**
+- **Brunno de Melo Marques**
+- **Emanuel Correia Tavares**
 
 ---
 
-### Equipe: 
-* Brunno de Melo Marques
-* Emanuel Correia Tavares
+## 📄 Licença
+
+Este é um projeto acadêmico/demonstração. Use como referência para aprendizado.
+
+---
+
+## 🔗 Repositório
+
+**GitHub:** [https://github.com/Brunno2m/Api_V1](https://github.com/Brunno2m/Api_V1)
+
+---
+
+## 📝 Notas Técnicas
+
+### SocketIO
+- **Modo assíncrono:** `threading` (compatível com Python 3.14+)
+- **Eventlet descontinuado:** Não use versões > 0.35.2 para compatibilidade
+
+### MySQL
+- **Encoding:** UTF-8 (utf8mb4_general_ci)
+- **TipoOperacao:** CHAR(1) - 'C' (Crédito) ou 'D' (Débito)
+- **Descricao:** VARCHAR(50) - truncado automaticamente
+
+### JWT
+- **Algoritmo:** HS256
+- **Expiração padrão:** 24 horas
+- **Header:** `Authorization: Bearer <token>`
+
+---
+
+**Última atualização:** Fevereiro 2026  
+**Versão:** 1.0
