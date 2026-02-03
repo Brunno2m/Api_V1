@@ -1,14 +1,36 @@
 # Arquivos e pastas do Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
 
 # Ambiente virtual
 venv/
 env/
+.venv/
+ENV/
 
 # Arquivos de dados e logs (evita expor informações sensíveis)
 *.log
 .DS_Store
 
 # Arquivos de credenciais ou configuração
-*.env
+.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operacional
+Thumbs.db
+.DS_Store
+
+# Arquivos de teste temporários
+test_*.py
+*_test.py
+diagnostico*.py
+setup_*.py
